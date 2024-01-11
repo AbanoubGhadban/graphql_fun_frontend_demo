@@ -1,5 +1,5 @@
-import React from 'react';
-import { useQuery } from '@apollo/react-hooks';
+import React, { useEffect } from 'react';
+import { useLazyQuery } from '@apollo/react-hooks';
 import gql from 'graphql-tag';
 import UserAvatar from './UserAvatar';
 import Posts from './Posts';
@@ -16,11 +16,19 @@ const GET_USER = gql`
 `;
 
 function User({ user, selectUser }) {
-  const { loading, error, data } = useQuery(GET_USER, {
+  const [getUser, { loading, called, error, data }] = useLazyQuery(GET_USER, {
     variables: { id: user.id }
   });
 
-  if (loading) return 'Loading...';
+  useEffect(() => {
+    setTimeout(() => {
+      console.log('User calling getUser');
+      getUser();
+    }, 1000);
+  }, [getUser]);
+  console.log('User useQuery', { called, loading, error, data });
+
+  if (!called || loading) return 'Loading...';
   if (error) return `Error ${error.message}`;
 
   return(
